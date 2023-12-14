@@ -1,5 +1,6 @@
 import Parser from "./frontend/parser";
 import prompt from "prompt-sync";
+import {evaluate} from "./runtime/interpreter";
 
 repl();
 
@@ -16,6 +17,9 @@ function repl() {
     }
 
     const program = parser.produceAST(input);
-    console.log(program);
+    // console.log(program);
+
+    const result = evaluate(program);
+    console.log(result)
   }
 }
