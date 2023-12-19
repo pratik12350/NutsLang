@@ -12,13 +12,11 @@ export enum TokenType {
   CloseParan,
   BinaryOperator,
   Let,
-  Null,
   EOF,
 }
 
 const RESERVED_KEYWORDS: Record<string, TokenType> = {
-  let: TokenType.Let,
-  null: TokenType.Null
+  let: TokenType.Let
 };
 
 export interface Token {
@@ -87,7 +85,7 @@ export function tokenize(sourceCode: string): Token[] {
 
         // Check if the token is a reserved keyword, if its not then build the token with Indentifier type anf if its reserved keyword then build it with the type corresponding to the keyword from RESERVED_KEYWORDS dictionary
         const reservedKeyword = RESERVED_KEYWORDS[indentifier];
-        if (typeof reservedKeyword == "number") {
+        if (!(typeof reservedKeyword == "number")) {
           tokens.push(token(TokenType.Identifier, indentifier));
         } else {
           tokens.push(token(reservedKeyword, indentifier));

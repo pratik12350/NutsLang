@@ -1,5 +1,7 @@
-import {ValueType, RuntimeValue, NumberValue, NullValue} from './values'
-import {BinaryExpression, NodeType, NumericLiteral, Program, Statement} from '../frontend/AST'
+import {ValueType, RuntimeValue, NumberValue, NullValue} from './values';
+import {BinaryExpression, Identifier, NodeType, NumericLiteral, Program, Statement} from '../frontend/AST';
+import {CREATE_NULL, CREATE_NUMBER} from "../utils/createValue";
+import Enviorment from './enviorment';
 
 
 function evalNumericBinaryExp(LHS: NumberValue, RHS: NumberValue, operator: string): NumberValue {
@@ -17,45 +19,50 @@ function evalNumericBinaryExp(LHS: NumberValue, RHS: NumberValue, operator: stri
     result = LHS.value % RHS.value
   }
 
-  return {value: result, type: "number"};
+  return CREATE_NUMBER(result);
 }
 
 
-function evalBinaryExpression(binaryExp: BinaryExpression): RuntimeValue {
-  const LHS = evaluate(binaryExp.left);
-  const RHS = evaluate(binaryExp.right);
+function evalBinaryExpression(binaryExp: BinaryExpression, env: Enviorment): RuntimeValue {
+  const LHS = evaluate(binaryExp.left, env);
+  const RHS = evaluate(binaryExp.right, env);
 
   if (LHS.type == "number" && RHS.type == "number") {
     return evalNumericBinaryExp(LHS as NumberValue, RHS as NumberValue, binaryExp.operator)
   }
 
-  return {type: "null", value: "null"} as NullValue;
+  return CREATE_NULL()
 };
 
 
-function evalProgram(program: Program): RuntimeValue {
-  let lastEvaluated: RuntimeValue = {type: "null", value: "null"} as NullValue;
+function evalProgram(program: Program, env: Enviorment): RuntimeValue {
+  let lastEvaluated: RuntimeValue = CREATE_NULL()
 
   for (const statement of program.body) {
-    lastEvaluated = evaluate(statement);
+    lastEvaluated = evaluate(statement, env);
   }
   return lastEvaluated;
 };
 
+function evalIdentifier(identifier: Identifier, env: Enviorment): RuntimeValue {
+  const val = env.lookupVariable(identifier.symbol);
+  return val;
+}
 
-export function evaluate(ASTNode: Statement): RuntimeValue {
+
+export function evaluate(ASTNode: Statement, env: Enviorment): RuntimeValue {
   switch (ASTNode.kind) {
     case "NumericLiteral":
       return {
         type: "number",
         value: ((ASTNode as NumericLiteral).value)
       } as NumberValue;
-    case "NullLiteral":
-      return {type: "null", value: "null"} as NullValue;
+    case "Identifier":
+      return evalIdentifier(ASTNode as Identifier, env);
     case "BinaryExpression":
-      return evalBinaryExpression(ASTNode as BinaryExpression);
+      return evalBinaryExpression(ASTNode as BinaryExpression, env);
     case "Program":
-      return evalProgram(ASTNode as Program)
+      return evalProgram(ASTNode as Program, env)
     default:
       console.error("That AST Node not added yet", ASTNode)
       process.exit();
