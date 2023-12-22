@@ -9,9 +9,10 @@ import {
   BinaryExpression,
   Identifier,
   Expression,
+  VariableDeclaration,
 } from "./AST";
 
-import {Token, tokenize, TokenType} from "./lexer";
+import { Token, tokenize, TokenType } from "./lexer";
 
 export default class Parser {
   private tokens: Token[] = [];
@@ -32,8 +33,8 @@ export default class Parser {
   private expect(type: TokenType, error: any) {
     const prev = this.tokens.shift();
     if (!prev || prev.type != type) {
-      console.log("Parser Error:", error, prev, "expecting", type)
-      process.exit()
+      console.log("Parser Error:", error, prev, "expecting", type);
+      process.exit();
     }
     return prev;
   }
@@ -55,7 +56,51 @@ export default class Parser {
 
   private parseStatement(): Statement {
     // Leaving it for future, for now lets skip to parseExpression function
-    return this.parseExpression();
+    switch (this.currentToken().type) {
+      case TokenType.Let:
+      case TokenType.Const:
+        return this.parseVariableDeclaration();
+      default:
+        return this.parseExpression();
+    }
+  }
+
+  private parseVariableDeclaration(): Statement {
+    const isConstant = this.eat().type == TokenType.Const;
+    const indentifier = this.expect(
+      TokenType.Identifier,
+      "Expected indentifier named following Let or Const keyword."
+    ).value;
+
+    if (this.currentToken().type == TokenType.Semicolon) {
+      this.eat();
+      if (isConstant)
+        throw "Must assign value to Constant variables. No value provided.";
+
+      return {
+        kind: "VariableDeclaration",
+        indentifier,
+        constant: false,
+      } as VariableDeclaration;
+    }
+
+    this.expect(
+      TokenType.Equals,
+      "Expected equals token following indentifier in variable declaration."
+    );
+
+    const declaration = {
+      kind: "VariableDeclaration",
+      value: this.parseExpression(),
+      constant: isConstant,
+      indentifier,
+    } as VariableDeclaration;
+
+    this.expect(
+      TokenType.Semicolon,
+      "Variable declaration statement must end with semicolon"
+    );
+    return declaration;
   }
 
   private parseExpression(): Expression {
@@ -119,8 +164,11 @@ export default class Parser {
       case TokenType.OpenParan: {
         this.eat();
         const value = this.parseExpression();
-        this.expect(TokenType.CloseParan, "Unexpected token found inside paranthesised expression. Expected closing paranthesis.")
-        return value
+        this.expect(
+          TokenType.CloseParan,
+          "Unexpected token found inside paranthesised expression. Expected closing paranthesis."
+        );
+        return value;
       }
 
       default:

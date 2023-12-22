@@ -2,21 +2,24 @@
  * Lexer module file for tokenizing the source code
  */
 
-import {readFileSync} from "fs";
+import { readFileSync } from "fs";
 
 export enum TokenType {
   Number,
   Identifier,
   Equals,
+  Semicolon,
   OpenParan,
   CloseParan,
   BinaryOperator,
   Let,
+  Const,
   EOF,
 }
 
 const RESERVED_KEYWORDS: Record<string, TokenType> = {
-  let: TokenType.Let
+  let: TokenType.Let,
+  const: TokenType.Const,
 };
 
 export interface Token {
@@ -68,6 +71,8 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(TokenType.BinaryOperator, src.shift()));
     } else if (src[0] == "=") {
       tokens.push(token(TokenType.Equals, src.shift()));
+    } else if (src[0] == ";") {
+      tokens.push(token(TokenType.Semicolon, src.shift()));
     } else {
       // Multi-character token building using functions to indentify them
 

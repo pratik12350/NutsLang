@@ -1,7 +1,11 @@
 // AST TYPES
 
 export type NodeType =
+  // Statement
   | "Program"
+  | "VariableDeclaration"
+
+  // Expression
   | "Identifier"
   | "NumericLiteral"
   | "BinaryExpression"
@@ -15,6 +19,14 @@ export interface Statement {
 export interface Program extends Statement {
   kind: "Program";
   body: Statement[];
+}
+
+// interface for variable declarations
+export interface VariableDeclaration extends Statement {
+  kind: "VariableDeclaration";
+  constant: boolean;
+  indentifier: string;
+  value?: Expression;
 }
 
 export interface Expression extends Statement {}
@@ -38,4 +50,3 @@ export interface Identifier extends Expression {
   kind: "Identifier";
   symbol: string;
 }
-
