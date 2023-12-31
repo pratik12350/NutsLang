@@ -1,9 +1,9 @@
 import Parser from "./frontend/parser";
 import prompt from "prompt-sync";
-import { evaluate } from "./runtime/interpreter";
+import {evaluate} from "./runtime/interpreter";
 import Enviorment from "./runtime/enviorment";
-import { CREATE_BOOL, CREATE_NULL, CREATE_NUMBER } from "./utils/createValue";
-import { NumberValue } from "./runtime/values";
+import {CREATE_BOOL, CREATE_NULL, CREATE_NUMBER} from "./utils/createValue";
+import {NumberValue} from "./runtime/values";
 
 repl();
 
@@ -11,9 +11,9 @@ function repl() {
   const parser = new Parser();
   const env = new Enviorment();
 
-  // env.declareVariable("x", CREATE_NUMBER(100) as NumberValue);
-  // env.declareVariable("y", CREATE_NULL());
-  //env.declareVariable("z", CREATE_BOOL(true));
+  env.declareVariable("true", CREATE_BOOL(true), true)
+  env.declareVariable("false", CREATE_BOOL(false), true)
+  env.declareVariable("null", CREATE_NULL(), true)
 
   console.log("\nNutsLang REPL v0.1");
 

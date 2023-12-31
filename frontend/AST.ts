@@ -6,6 +6,7 @@ export type NodeType =
   | "VariableDeclaration"
 
   // Expression
+  | "AssignmentExpression"
   | "Identifier"
   | "NumericLiteral"
   | "BinaryExpression"
@@ -30,6 +31,14 @@ export interface VariableDeclaration extends Statement {
 }
 
 export interface Expression extends Statement {}
+
+
+export interface AssignmentExpression extends Expression {
+  kind: "AssignmentExpression";
+  assignee: Expression;
+  value: Expression
+}
+
 
 // Interface for any number like 42, 45, 69, etc
 export interface NumericLiteral extends Expression {

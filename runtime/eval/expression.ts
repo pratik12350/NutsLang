@@ -1,8 +1,8 @@
-import { BinaryExpression, Identifier } from "../../frontend/AST";
-import { CREATE_NULL, CREATE_NUMBER } from "../../utils/createValue";
+import {AssignmentExpression, BinaryExpression, Identifier} from "../../frontend/AST";
+import {CREATE_NULL, CREATE_NUMBER} from "../../utils/createValue";
 import Enviorment from "../enviorment";
-import { evaluate } from "../interpreter";
-import { NumberValue, RuntimeValue } from "../values";
+import {evaluate} from "../interpreter";
+import {NumberValue, RuntimeValue} from "../values";
 
 export function evalIdentifier(
   identifier: Identifier,
@@ -50,4 +50,14 @@ export function evalBinaryExpression(
   }
 
   return CREATE_NULL();
+}
+
+
+export function evalAssignment(node: AssignmentExpression, env: Enviorment): RuntimeValue {
+  if (node.assignee.kind != "Identifier") {
+    throw `Invalid LHS inside Assignment expression. ${JSON.stringify(node.assignee)}`
+  }
+
+  const varname = (node.assignee as Identifier).symbol;
+  return env.assignVariable(varname, evaluate(node.value, env))
 }

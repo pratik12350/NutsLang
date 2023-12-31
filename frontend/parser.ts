@@ -10,9 +10,10 @@ import {
   Identifier,
   Expression,
   VariableDeclaration,
+  AssignmentExpression,
 } from "./AST";
 
-import { Token, tokenize, TokenType } from "./lexer";
+import {Token, tokenize, TokenType} from "./lexer";
 
 export default class Parser {
   private tokens: Token[] = [];
@@ -104,7 +105,18 @@ export default class Parser {
   }
 
   private parseExpression(): Expression {
-    return this.parseAdditiveExpression();
+    return this.parseAssignmentExpression()
+  }
+
+  private parseAssignmentExpression(): Expression {
+    const left = this.parseAdditiveExpression();
+    if (this.currentToken().type == TokenType.Equals) {
+      this.eat();
+      const value = this.parseAssignmentExpression();
+
+      return {kind: "AssignmentExpression", value, assignee: left} as AssignmentExpression
+    }
+    return left;
   }
 
   private parseAdditiveExpression(): Expression {

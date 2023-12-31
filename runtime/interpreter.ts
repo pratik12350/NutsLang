@@ -1,5 +1,6 @@
-import { ValueType, RuntimeValue, NumberValue, NullValue } from "./values";
+import {ValueType, RuntimeValue, NumberValue, NullValue} from "./values";
 import {
+  AssignmentExpression,
   BinaryExpression,
   Identifier,
   NodeType,
@@ -9,8 +10,8 @@ import {
   VariableDeclaration,
 } from "../frontend/AST";
 import Enviorment from "./enviorment";
-import { evalBinaryExpression, evalIdentifier } from "./eval/expression";
-import { evalProgram, evalVariableDeclaration } from "./eval/statement";
+import {evalAssignment, evalBinaryExpression, evalIdentifier} from "./eval/expression";
+import {evalProgram, evalVariableDeclaration} from "./eval/statement";
 
 export function evaluate(ASTNode: Statement, env: Enviorment): RuntimeValue {
   switch (ASTNode.kind) {
@@ -23,6 +24,8 @@ export function evaluate(ASTNode: Statement, env: Enviorment): RuntimeValue {
       return evalIdentifier(ASTNode as Identifier, env);
     case "BinaryExpression":
       return evalBinaryExpression(ASTNode as BinaryExpression, env);
+    case "AssignmentExpression":
+      return evalAssignment(ASTNode as AssignmentExpression, env)
     case "Program":
       return evalProgram(ASTNode as Program, env);
     case "VariableDeclaration":
